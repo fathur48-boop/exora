@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "cv02","cv03","cv04","cv11";
+  }
+
+  body {
+    @apply bg-surface-muted text-ink font-sans text-sm leading-relaxed;
+    min-height: 100dvh;
+  }
+
+  input, textarea, select, button { @apply font-sans; }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-white;
+  }
+
+  ::selection { @apply bg-brand-100 text-brand-900; }
+}
+
+@layer components {
+  /* ── Scrollbar ──────────────────────────────────────────────────────────── */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.surface.border') transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar { width: 5px; height: 5px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-surface-border rounded-full;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-ink-faint;
+  }
+
+  /* ── Glass card ─────────────────────────────────────────────────────────── */
+  .glass {
+    @apply bg-white/60 backdrop-blur-xl border border-white/20;
+  }
+
+  /* ── Gradient text ──────────────────────────────────────────────────────── */
+  .text-gradient {
+    @apply bg-gradient-to-r from-brand-600 to-violet-600 bg-clip-text text-transparent;
+  }
+
+  /* ── Auth gradient bg ───────────────────────────────────────────────────── */
+  .auth-bg {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #1e1b4b 70%, #0f0e2e 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .auth-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(99,102,241,0.25) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(124,58,237,0.2) 0%, transparent 50%),
+      radial-gradient(ellipse at 60% 80%, rgba(79,70,229,0.15) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  /* ── Sidebar ────────────────────────────────────────────────────────────── */
+  .sidebar-gradient {
+    background: linear-gradient(180deg, #1e1b4b 0%, #1a1740 100%);
+  }
+
+  /* ── Stat card hover ────────────────────────────────────────────────────── */
+  .stat-card {
+    @apply transition-all duration-200;
+  }
+  .stat-card:hover {
+    @apply shadow-panel -translate-y-0.5;
+  }
+
+  /* ── Table row hover ────────────────────────────────────────────────────── */
+  .table-row-hover {
+    @apply transition-colors duration-100;
+  }
+  .table-row-hover:hover {
+    @apply bg-brand-50/50;
+  }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
