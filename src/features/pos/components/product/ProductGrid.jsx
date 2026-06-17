@@ -59,8 +59,11 @@ export default function ProductGrid({ products, inventory, onAddItem, isLoading 
                     outOfStock ? 'border-surface-border bg-surface-muted opacity-50 cursor-not-allowed'
                     : 'border-surface-border bg-white hover:border-brand-300 hover:shadow-md hover:-translate-y-0.5 active:scale-95 cursor-pointer'
                   )}>
-                  <div className="w-full aspect-square rounded-lg bg-gradient-to-br from-brand-50 to-violet-50 flex items-center justify-center mb-2 group-hover:from-brand-100 group-hover:to-violet-100 transition-all">
-                    <Package className="w-6 h-6 text-brand-300"/>
+                  <div className="w-full aspect-square rounded-lg bg-gradient-to-br from-brand-50 to-violet-50 flex items-center justify-center mb-2 overflow-hidden group-hover:from-brand-100 group-hover:to-violet-100 transition-all">
+                    {p.image_url
+                      ? <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" />
+                      : <Package className="w-6 h-6 text-brand-300"/>
+                    }
                   </div>
                   <p className="text-xs font-semibold text-ink line-clamp-2 leading-tight mb-1">{p.name}</p>
                   {p.sku && <p className="text-2xs text-ink-faint font-mono mb-1">{p.sku}</p>}
