@@ -2,16 +2,57 @@ import { useState } from 'react'
 import Input  from '../../../../shared/components/ui/Input.jsx'
 import Button from '../../../../shared/components/ui/Button.jsx'
 import { PRODUCT_UNITS } from '../../utils/inventoryHelpers.js'
-const EMPTY = { name:'',sku:'',category:'',description:'',price:'',cost:'',unit:'pcs',is_active:true }
+import { uploadProductImage } from '../../services/productService.js'
+
+const EMPTY = { name:'',sku:'',category:'',description:'',price:'',cost:'',unit:'pcs',is_active:true,image_url:'' }
+
 export default function ProductForm({ initial,onSubmit,onCancel,saving }) {
   const [fields,setFields] = useState(initial ? {...initial,price:initial.price??'',cost:initial.cost??''} : EMPTY)
   const [errors,setErrors] = useState({})
+  const [imageFile,setImageFile] = useState(null)
+  const [preview,setPreview] = useState(initial?.image_url || '')
+  const [uploading,setUploading] = useState(false)
+
   const set = (k,v)=>{setFields(f=>({...f,[k]:v}));if(errors[k])setErrors(e=>({...e,[k]:null}))}
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImageFile(file)
+    setPreview(URL.createObjectURL(file))
+  }
+
   const validate = ()=>{const e={};if(!fields.name.trim())e.name='Nama produk wajib diisi';if(fields.price!==''&&isNaN(Number(fields.price)))e.price='Harus angka';if(fields.cost!==''&&isNaN(Number(fields.cost)))e.cost='Harus angka';return e}
-  const handleSubmit = async(ev)=>{ev.preventDefault();const e=validate();if(Object.keys(e).length){setErrors(e);return};await onSubmit({...fields,price:fields.price!==''?Number(fields.price):0,cost:fields.cost!==''?Number(fields.cost):0})}
+
+  const handleSubmit = async(ev)=>{
+    ev.preventDefault()
+    const e=validate()
+    if(Object.keys(e).length){setErrors(e);return}
+    let imageUrl = fields.image_url
+    if (imageFile) {
+      setUploading(true)
+      try { imageUrl = await uploadProductImage(imageFile) }
+      catch (err) { setErrors(prev=>({...prev,image:err.message})); setUploading(false); return }
+      setUploading(false)
+    }
+    await onSubmit({...fields,price:fields.price!==''?Number(fields.price):0,cost:fields.cost!==''?Number(fields.cost):0,image_url:imageUrl})
+  }
+
   const sel = "h-9 px-3 rounded-lg border border-surface-border bg-white text-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-400 hover:border-brand-300 transition-all"
+
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs font-semibold text-ink-secondary tracking-wide">Foto Produk</label>
+        <div className="flex items-center gap-3">
+          <div className="w-16 h-16 rounded-lg border border-surface-border bg-surface-muted overflow-hidden flex items-center justify-center shrink-0">
+            {preview ? <img src={preview} alt="preview" className="w-full h-full object-cover" /> : <span className="text-xs text-ink-faint">No image</span>}
+          </div>
+          <input type="file" accept="image/*" onChange={handleFileChange} className="text-sm text-ink-secondary" />
+        </div>
+        {errors.image && <span className="text-xs text-red-500">{errors.image}</span>}
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input label="Nama Produk *" value={fields.name}     onChange={e=>set('name',e.target.value)}     error={errors.name} placeholder="Nama produk"/>
         <Input label="SKU"           value={fields.sku}      onChange={e=>set('sku',e.target.value)}      placeholder="Auto-generate jika kosong"/>
@@ -28,7 +69,7 @@ export default function ProductForm({ initial,onSubmit,onCancel,saving }) {
           <label htmlFor="is_active" className="text-sm font-medium text-ink cursor-pointer">Produk aktif</label>
         </div>
       </div>
-      <div className="flex gap-2 justify-end pt-2"><Button type="button" variant="secondary" size="sm" onClick={onCancel}>Batal</Button><Button type="submit" size="sm" loading={saving}>{initial?'Simpan':'Tambah produk'}</Button></div>
+      <div className="flex gap-2 justify-end pt-2"><Button type="button" variant="secondary" size="sm" onClick={onCancel}>Batal</Button><Button type="submit" size="sm" loading={saving||uploading}>{uploading?'Mengunggah foto...':initial?'Simpan':'Tambah produk'}</Button></div>
     </form>
   )
 }
