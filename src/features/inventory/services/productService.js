@@ -21,6 +21,16 @@ export async function fetchProductById(id) {
   return (await apiClient.post('', { action: 'inventory.getProduct', payload: { id } })).data.data
 }
 
+export async function uploadProductImage(file) {
+  if (!isSupabase()) throw new Error('Upload foto hanya didukung di mode Supabase')
+  const ext = file.name.split('.').pop()
+  const fileName = `${crypto.randomUUID()}.${ext}`
+  const { error } = await supabase.storage.from('product-images').upload(fileName, file, { cacheControl: '3600', upsert: false })
+  if (error) throw new Error(error.message)
+  const { data } = supabase.storage.from('product-images').getPublicUrl(fileName)
+  return data.publicUrl
+}
+
 export async function createProduct(data) {
   if (isSupabase()) {
     const row = {
@@ -28,6 +38,7 @@ export async function createProduct(data) {
       description: data.description || '', price: Number(data.price) || 0,
       cost: Number(data.cost) || 0, unit: data.unit || 'pcs',
       is_active: data.is_active !== undefined ? data.is_active : true,
+      image_url: data.image_url || null,
     }
     const { data: created, error } = await supabase.from('products').insert(row).select().single()
     if (error) throw new Error(error.message)
@@ -42,7 +53,9 @@ export async function updateProduct(id, data) {
       name: data.name, sku: data.sku, category: data.category, description: data.description,
       price: data.price !== undefined ? Number(data.price) || 0 : undefined,
       cost: data.cost !== undefined ? Number(data.cost) || 0 : undefined,
-      unit: data.unit, is_active: data.is_active, updated_at: new Date().toISOString(),
+      unit: data.unit, is_active: data.is_active,
+      image_url: data.image_url !== undefined ? data.image_url : undefined,
+      updated_at: new Date().toISOString(),
     }
     Object.keys(row).forEach(k => row[k] === undefined && delete row[k])
     const { data: updated, error } = await supabase.from('products').update(row).eq('id', id).select().single()
