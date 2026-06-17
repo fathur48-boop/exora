@@ -23,12 +23,12 @@ export async function processCheckout({ receiptNo, items, subtotal, discount, to
 
   // 3. Save sale record
   const saleData = {
-    receipt_no: receiptNo, cashier_id: cashierId || '', cashier_name: cashierName || '',
-    shift_id: shiftId || '', customer_id: customerId || '', customer_name: customerName || '',
+    receipt_no: receiptNo, cashier_id: cashierId || null, cashier_name: cashierName || '',
+    shift_id: shiftId || null, customer_id: customerId || null, customer_name: customerName || '',
     subtotal, discount, total, payment_method: paymentMethod,
     amount_paid: amountPaid, change_amount: change,
     points_earned: pointsEarned || 0, points_redeemed: pointsRedeemed || 0,
-    notes: notes || '', transaction_id: txn?.id || '',
+    notes: notes || '', transaction_id: txn?.id || null,
     created_at: now,
   }
 
