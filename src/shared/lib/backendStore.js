@@ -9,7 +9,7 @@ export const BACKENDS = Object.freeze({
 export const useBackendStore = create(
   persist(
     (set, get) => ({
-      backend: BACKENDS.GAS,
+      backend: BACKENDS.SUPABASE,
       setBackend: (backend) => set({ backend }),
       isSupabase: () => get().backend === BACKENDS.SUPABASE,
       isGas: () => get().backend === BACKENDS.GAS,
@@ -17,6 +17,8 @@ export const useBackendStore = create(
     {
       name: 'exora_backend',
       storage: createJSONStorage(() => localStorage),
+      version: 1,
+      migrate: () => ({ backend: BACKENDS.SUPABASE }),
     }
   )
 )
